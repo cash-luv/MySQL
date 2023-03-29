@@ -290,18 +290,111 @@ select * from emp where sal = (select max(sal) from emp);
 -- allen 보다 높은 급여를 받는 사원 조회
 select * from emp where sal  > (select sal from emp where ename = 'allen')
 	order by sal asc;
+-- allen 급여값
+select sal from emp where ename= 'allen';
+select count(deptno) from emp where sal > (select sal from emp where ename='allen') group by deptno;    
+/*
+	연습문제 
+    1. clark 보다 늦게 입사한 사원 조회 
+    2. 부서번호가 20인 사원 중에서 전체 사원 평균 급여보다 높은 급여를 받는 사원 조회 
+    3. 2번 조회 결과에서 부서이름, 부서위치도 함께 조회 
+*/
+select * from emp where hiredate > (select hiredate from emp where ename = 'clark');
+	
+select * from emp where deptno = 20 and sal > (select avg(sal) from emp);
 
+select * from emp e, dept d where e.deptno = 20 and e.deptno = d.deptno and sal > (select avg(sal) from emp);
 
+create table member1(
+	id bigint,
+    member_email varchar(20),
+    member_password varchar(10)
+);
+insert into member1(id,member_email, member_password) 
+	values(1,'member1@email.com','1111');
+-- 모든 컬럼에 데이터를 저장한다면 컬럼이름을 생략 가능 
+insert into member1 values(2, 'member2@email.com', '2222');
+insert into member1 values(3, 'member2@email.com'); -- X error 1136
+-- 특정 컬럼에만 값을 넣고 싶은 경우
+insert into member1(id,member_email) 
+	values(4,'member1@email.com');
+-- 테이블 만들 때 지정한 크기보다 큰 값을 저장할 때
+insert into member1 values(4, 'member2@email.com','222222222222'); -- X error 1406 지정한 테이터 값보다 크다  
+insert into member1(id,member_email, member_password) 
+	values(5,null,'1111');
+insert into member1(id,member_email, member_password) 
+	values(null,null,'1111');
+select * from member1;
 
+-- id 컬럼에 not null 제약조건 적용
+create table member2(
+	id bigint not null,
+    member_email varchar(20),
+    member_password varchar(10)
+);
+desc member2;
+insert into member2(id,member_email, member_password) 
+	values(1,'member1@email.com','1111');
+-- error 1048 (not null 로 적용 후 null을 넣었을 때)
+insert into member2(id,member_email, member_password) 
+	values(null,'member1@email.com','1111');
+    
+create table member3(
+	id bigint not null unique,
+    member_email varchar(20) not null ,
+    member_password varchar(10) not null 
+);
+desc member3;
+insert into member3(id,member_email, member_password) 
+	values(1,'member1@email.com','1111');
+-- error 1062 (id 중복된 정보, unique는 중복안됌)
+insert into member3(id,member_email, member_password) 
+	values(1,'member1@email.com','1111');
 
+create table member4(
+	id bigint not null unique,
+    member_email varchar(20) not null  unique,
+    member_password varchar(10) not null 
+);
+insert into member4(id,member_email, member_password) 
+	values(1,'member1@email.com','1111');
+-- error 1062
+insert into member4(id,member_email, member_password) 
+	values(2,'member1@email.com','2222');
+    
+create table member5(
+	id bigint not null unique,
+    member_email varchar(20) not null  unique,
+    member_password varchar(10) not null,
+    member_created_dete datetime
+);
+insert into member5(id,member_email, member_password, member_created_date) 
+	values(1,'member1@email.com','1111', sysdate());
+select * from member5;
+insert into member5(id,member_email, member_password) 
+	values(2,'member2@email.com','2222');
+    
+create table member6(
+	id bigint not null unique,
+    member_email varchar(20) not null  unique,
+    member_password varchar(10) not null,
+    member_created_dete datetime default now()
+);
+insert into member6(id,member_email, member_password) 
+	values(1,'member2@email.com','1111');
+select * from member6;
 
-
-
-
-
-
-
-
-
-
-
+create table member7(
+	id bigint primary key,
+    member_email varchar(20) not null  unique,
+    member_password varchar(10) not null,
+    member_created_dete datetime default now()
+);
+insert into member7(id,member_email, member_password) 
+	values(1,'member2@email.com','1111');
+insert into member7(id,member_email, member_password) 
+	values(1,'member2@email.com','1111');
+    
+    
+    
+    
