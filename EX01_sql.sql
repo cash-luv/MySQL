@@ -366,14 +366,14 @@ create table member5(
 	id bigint not null unique,
     member_email varchar(20) not null  unique,
     member_password varchar(10) not null,
-    member_created_dete datetime
+    member_created_date datetime
 );
 insert into member5(id,member_email, member_password, member_created_date) 
-	values(1,'member1@email.com','1111', sysdate());
+	values(4,'member4@email.com','1111', sysdate());
 select * from member5;
 insert into member5(id,member_email, member_password) 
 	values(2,'member2@email.com','2222');
-    
+    drop table member5;
 create table member6(
 	id bigint not null unique,
     member_email varchar(20) not null  unique,
@@ -394,7 +394,15 @@ insert into member7(id,member_email, member_password)
 	values(1,'member2@email.com','1111');
 insert into member7(id,member_email, member_password) 
 	values(1,'member2@email.com','1111');
-    
-    
+
+create table member8(
+	id bigint ,
+    member_email varchar(20) not null  unique,
+    member_password varchar(10) not null,
+    member_created_dete datetime default now(),
+    constraint pk_member8 primary key(id)
+);
+-- 제약 조건 확인
+select * from information_schema.table_constraints;
     
     
