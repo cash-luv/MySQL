@@ -406,3 +406,175 @@ create table member8(
 select * from information_schema.table_constraints;
     
     
+-- 20230330
+-- 참조관계
+-- 게시판과 댓글의 관계 
+drop table if exists board1; -- 있으면지우고 없으면 말고 ^^
+create table board1(
+	id bigint, -- 글번호
+    board_writer varchar(20) not null, -- 작성자
+    board_contents varchar(500),-- 내용
+    constraint pk_board1 primary key(id)
+);
+-- 댓글 테이블: 댓글은 존재하는 게시글에만 작성 가능하며,
+-- 게시글의 글번호(id)를 참조하는 관계로 정의
+drop table if exists comment1;
+create table comment1 (
+	id bigint, -- 댓글번호
+    comment_writer varchar(20) not null, -- 댓글 작성자
+	comment_contents varchar(200), -- 댓글내용
+    board_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    -- 댓글 테이블(comment1)의 pk 지정
+    constraint pk_comment1 primary key(id),
+    -- 참조관계 지정을 위해 comment1 테이블의 board1_id 컬럼을
+    -- board1 테이블의 id 컬럼을 참조하는 관계로 정의
+    constraint fk_comment1 foreign key(board_id) references board1(id)
+);
+
+insert into board1(id,board_writer,board_contents)
+	values(1, 'writer1', 'contents1');
+insert into board1(id,board_writer,board_contents)
+	values(2, 'writer2', 'contents2');
+insert into board1(id,board_writer,board_contents)
+	values(3, 'writer3', 'contents3');
+insert into board1(id,board_writer,board_contents)
+	values(4, 'writer4', 'contents4');
+select * from board1;
+
+-- 댓글 데이터 저장
+-- 1번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board_id)
+	values(1, 'c writer1','c contents1', 1);
+-- 1번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board_id)
+	values(2, 'c writer2','c contents2', 1);
+-- 2번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board_id)
+	values(3, 'c writer3','c contents3', 2);
+-- 5번 게시글에 대한 댓글
+insert into comment1(id, comment_writer, comment_contents, board_id)
+	values(5, 'c writer3','c contents3', 5); -- borad의 5번째 글이 없기 때문에 에러
+select * from comment1;
+
+-- 부모 데이터 삭제
+-- 1,2번 게시글에는 댓글이 있고 3,4번 게시글에는 댓글이 없음
+-- 3번 게시글 삭제
+delete from board1 where id = 3;
+-- 2번 게시글 삭제
+delete from board1 where id = 2;
+-- 2번 게시글이 작성된 댓글
+delete from comment1 where id = 2;
+
+-- 부모 데이터 삭제시 자식 데이터도 함께 삭제
+drop table if exists board2; -- 있으면지우고 없으면 말고 ^^
+create table board2(
+	id bigint, -- 글번호
+    board_writer varchar(20) not null, -- 작성자
+    board_contents varchar(500),-- 내용
+    constraint pk_board2 primary key(id)
+);
+
+drop table if exists comment2;
+create table comment2 (
+	id bigint, -- 댓글번호
+    comment_writer varchar(20) not null, -- 댓글 작성자
+	comment_contents varchar(200), -- 댓글내용
+    board2_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    constraint pk_comment2 primary key(id),
+    -- on delete cascode: 부모데이터 삭제 시 자식데이터도 함께 삭제
+    constraint fk_comment2 foreign key(board2_id) references board2(id) on delete cascade
+);
+select * from comment2;
+-- 게시글 4개 작성
+insert into board2(id,board_writer,board_contents)
+	values(1, 'writer1', 'contents1');
+insert into board2(id,board_writer,board_contents)
+	values(2, 'writer2', 'contents2');
+insert into board2(id,board_writer,board_contents)
+	values(3, 'writer3', 'contents3');
+insert into board2(id,board_writer,board_contents)
+	values(4, 'writer4', 'contents4');
+select * from board2;
+
+insert into comment2(id, comment_writer, comment_contents, board2_id)
+	values(1, 'c writer1','c contents1', 1);
+
+insert into comment2(id, comment_writer, comment_contents, board2_id)
+	values(2, 'c writer2','c contents2', 1);
+
+insert into comment2(id, comment_writer, comment_contents, board2_id)
+	values(3, 'c writer3','c contents3', 2);
+-- 3번 게시글 삭제
+delete from board2 where id = 3;
+-- 2번 게시글 삭제
+delete from board2 where id = 2;
+
+-- ------------------ 
+
+drop table if exists board3; 
+create table board3(
+	id bigint, -- 글번호
+    board_writer varchar(20) not null, -- 작성자
+    board_contents varchar(500),-- 내용
+    constraint pk_board3 primary key(id)
+);
+
+drop table if exists comment3;
+create table comment3 (
+	id bigint, -- 댓글번호
+    comment_writer varchar(20) not null, -- 댓글 작성자
+	comment_contents varchar(200), -- 댓글내용
+    board3_id bigint, -- 어떤 게시글에 작성된 댓글인지 글번호 정보가 필요함
+    constraint pk_comment3 primary key(id),
+    -- on delete set null: 자식 데이터는 유지되지만 참조 컬럼은 null로 바꿈
+    constraint fk_comment3 foreign key(board3_id) references board3(id) on delete set null
+);
+select * from comment3;
+-- 게시글 4개 작성
+insert into board3(id,board_writer,board_contents)
+	values(1, 'writer1', 'contents1');
+insert into board3(id,board_writer,board_contents)
+	values(2, 'writer2', 'contents2');
+insert into board3(id,board_writer,board_contents)
+	values(3, 'writer3', 'contents3');
+insert into board3(id,board_writer,board_contents)
+	values(4, 'writer4', 'contents4');
+select * from board3;
+
+insert into comment3(id, comment_writer, comment_contents, board3_id)
+	values(1, 'c writer1','c contents1', 1);
+
+insert into comment3(id, comment_writer, comment_contents, board3_id)
+	values(2, 'c writer2','c contents2', 1);
+
+insert into comment3(id, comment_writer, comment_contents, board3_id)
+	values(3, 'c writer3','c contents3', 2);
+-- 3번 게시글 삭제
+delete from board3 where id = 3;
+-- 2번 게시글 삭제
+delete from board3 where id = 2;
+
+-- 수정쿼리
+-- 1번 게시글 내용을 안녕하세요로 수정
+select * from board3;
+update board3 set board_contents = ' 안녕하세요 ' where id = 1;
+-- 4번 게시글 작성자를 작성자4 , 내용을 곧 점심시간 으로 수정
+update board3 set board_writer = ' 작성자4' , board_contents='곧 점심시간' where id = 4;
+
+-- id 컬럼에 자동 번호 적용하기
+drop table if exists board4; 
+create table board4(
+	id bigint auto_increment, -- 글번호
+    board_writer varchar(20) not null, -- 작성자
+    board_contents varchar(500),-- 내용
+    constraint pk_board4 primary key(id)
+);
+insert into board4(board_writer,board_contents)
+	values('writer1', 'contents1');
+insert into board4(board_writer,board_contents)
+	values('writer2', 'contents2');
+insert into board4(board_writer,board_contents)
+	values('writer3', 'contents3');
+insert into board4(board_writer,board_contents)
+	values('writer4', 'contents4');
+select * from board4;
