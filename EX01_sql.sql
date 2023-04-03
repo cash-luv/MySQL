@@ -840,4 +840,101 @@ constraint fk_good_table foreign key(member_id) references member_table(id) on d
 constraint fk_good_table2 foreign key(comment_id)  references comment_table(id)
 );
 
+-- 회원 기능
+-- 1. 회원가입
+select * from member_table;
+insert into member_table(member_name,member_email,member_password) values('최민호','mino210125@naver.com','1234');
+insert into member_table(member_name,member_email,member_password) values('이신욱','548125@naver.com','1234');
+insert into member_table(member_name,member_email,member_password) values('이호섭','guping25@naver.com','1234');
+-- 2. 이메일 중복체크 
+-- 기존 가입된 이메일로 가입하려고 한다면
+select member_email from member_table where member_email = 'mino210125@naver.com';
+-- 기존 가입되어 있지 않은 이메일로 가입하려고 한다면
+select member_email from member_table where member_email = 'mino25@naver.com';
+-- 3. 로그인
+select * from member_table where member_email = 'mino210125@naver.com' and member_password = '1234';
+-- 4. 전체 회원 목록 조회 
+select * from member_table;
+-- 5. 특정 회원만 조회
+select * from member_table where member_email= 'mino210125@naver.com';
+-- 6. 회원정보 수정화면 요청 
+select * from member_table where member_email= 'mino210125@naver.com' and member_password = '1234';
+-- 7. 회원정보 수정 처리(비밀번호 변경)
+update member_table set member_password ='7894'  where id = 1;
+-- 8. 회원 삭제 또는 탈퇴 
+-- alter table member_table drop ;
+delete from member_table where id = 1;
 
+-- 게시글 카테고리 
+-- 게시판 카테고리는 자유게시판, 공지사항, 가입인사 세가지가 있음.
+select * from category_table;
+insert into category_table(category_name) values ('자유게시판');
+insert into category_table(category_name) values ('공지사항');
+insert into category_table(category_name) values ('가입인사');
+-- 게시판 기능 
+-- 1. 게시글 작성(파일첨부 x) 3개 이상 
+select * from board_table;
+insert into board_table(board_title,board_writer,board_contents,board_file_attached)
+	values ('자바는즐거워','최민호','여러분 자바는 즐겁지 않습니까??ㅎㅎ',0);
+insert into board_table(board_title,board_writer,board_contents,board_file_attached)
+	values ('신나는 점심시간','이신욱','여러분 여러분은 오늘 점심 뭐드세요?',0);
+insert into board_table(board_title,board_writer,board_contents,board_file_attached)
+	values ('데이터베이스문의','이호섭','Mysql하고있는데 개노잼',0);
+    
+-- 1번 회원이 자유게시판 글 2개, 공지사항 글 1개 작성 
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (3,1,'여기가 자유게시판인가요?','홍길동','자바게시판인줄',0);
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (3,1,'저기요 아무도 없으세요??','홍길동','여기 활동 아무도 안하나?',0);
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (3,2,'공지사항 알립니다','홍길동','여기는 아무도 없습니다',0);
+delete from board_table;
+
+-- 2번 회원이 자유게시판 글 3개 작성
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (6,1,'활동중인 페이지입니다','최민호','함부로 판단하지마세요',0);
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (6,1,'홍길동님','최민호','활동 열심히 하세요',0);
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (6,1,'공지사항 막하네','최민호','여기 주인이셨구나',0);
+    
+-- 3번 회원이 가입인사 글 1개 작성 
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (9,3,'안녕하세요 가입했어요','이신욱','잘 부탁드립니다',0);
+    
+-- 1.1. 게시글 작성(파일첨부 o)
+insert into board_file_table(original_file_name,stored_file_name,board_id)
+	values ('홈페이지관리규정','1112233',14);
+select * from board_file_table;
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (3,1,'홈페이지관리파일 올립니다','홍길동','참고해주세요',1);
+
+-- 2번 회원이 파일있는 자유게시판 글 2개 작성
+insert into board_file_table(original_file_name,stored_file_name,board_id)
+	values ('중고차수출은 여기','121212',15);
+select * from board_file_table;
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (6,1,'중고차수출은 커머스무역','최민호','사진참고해주세요',1);
+
+insert into board_file_table(original_file_name,stored_file_name,board_id)
+	values ('커머스무역수출차량','12121212',16);
+select * from board_file_table;
+insert into board_table(member_id,category_id,board_title,board_writer,board_contents,board_file_attached)
+	values (6,1,'광고죄송합니다','최민호','사장님이 시켰어요',1);
+-- 2. 게시글 목록 조회 
+select * from board_table where category_id = 1; -- 자유게시판
+select * from board_table where category_id = 2; -- 공지사항
+select * from board_table where category_id = 3; -- 가입인사
+
+-- 2.1 전체글 목록 조회
+select * from board_table;
+
+-- 2.2 자유게시판 목록 조회 
+select * from board_table where category_id = 1; -- 자유게시판
+
+-- 2.3 공지사항 목록 조회 
+select * from board_table where category_id = 2; -- 공지사항
+
+-- 2.4 목록 조회시 카테고리 이름도 함께 나오게 조회
+select b.* ,c.category_name
+	from board_table b , category_table c  where b.category_id = c.id; 
